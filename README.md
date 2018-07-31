@@ -243,8 +243,202 @@ import shim from 'system.global/shim'; shim();
 ```
 
 # 2.变量的解构赋值
+* [数组的解构赋值](#数组的解构赋值)</br>
+* [对象的解构赋值](#对象的解构赋值)</br>
+* [字符串的解构赋值](#字符串的解构赋值)</br>
+* [数值和布尔值的解构赋值](#数值和布尔值的解构赋值)</br>
+* [函数参数解构赋值](#函数参数解构赋值)</br>
+* [圆括号问题](#圆括号问题)</br>
+* [用途](#用途)</br>
+
+## 数组的解构赋值
 
 
 
+## 对象的解构赋值
 
+
+
+## 字符串的解构赋值
+字符串也可以被解构，它被解构成了一种类似数组的对象。类似数组的对象都有一个`length`属性，故可以对它解构赋值。
+
+```javascript
+
+const [a, b, c, d, e] = 'hello';
+a // "h"
+b // "e"
+c // "l"
+d // "l"
+e // "o"
+
+let {length : len} = 'hello';
+len // 5
+```
+## 数值和布尔值的解构赋值
+解构赋值时，若等号右边不是对象与数组，都会先将其转化为对象。由于`undefined`、`null`无法转化为对象，故解构失败，报错。
+数值和布尔值拥有对象属性`toString`
+
+```javascript
+let {toString: s} = 123;
+s === Number.prototype.toString // true
+
+let {toString: s} = true;
+s === Boolean.prototype.toString // true
+
+//上面代码中，数值和布尔值的包装对象都有toString属性，因此变量s都能取到值。
+
+let { prop: x } = undefined; // TypeError
+let { prop: y } = null; // TypeError
+
+```
+
+## 函数参数解构赋值
+函数参数的解构也会有默认值
+```javascript
+function move({x, y} = { x: 0, y: 0 }) {
+  return [x, y];
+}
+
+move({x: 3, y: 8}); // [3, 8]
+move({x: 3}); // [3, undefined]
+move({}); // [undefined, undefined]
+move(); // [0, 0]
+
+//此时是为函数move的参数指定默认值，若传入参数，默认值会被直接替代
+```
+
+## 圆括号问题
+ES6规定：只要有可能导致解构的歧义，就不能使用圆括号。
+* 不能使用圆括号的情况：
+- 变量声明语句
+- 函数参数（也属于变量声明）
+- 赋值语句的模式
+
+```javascript
+// 全部报错
+let [(a)] = [1];
+let {x: (c)} = {};
+let ({x: c}) = {};
+let {(x: c)} = {};
+let {(x): c} = {};
+
+let { o: ({ p: p }) } = { o: { p: 2 } };
+//上面 6 个语句都会报错，因为它们都是变量声明语句，模式不能使用圆括号。
+
+// 报错
+function f([(z)]) { return z; }
+// 报错
+function f([z,(x)]) { return x; }
+
+// 全部报错
+({ p: a }) = { p: 42 };
+([a]) = [5];
+//将整个模式放在圆括号中，导致报错
+
+// 报错
+[({ p: a }), { x: c }] = [{}, {}];
+//将部分模式放在圆括号中，导致报错
+```
+* 可以使用圆括号的情况只有一种，即赋值语句的非模式部分
+
+```javascript
+[(b)] = [3]; // 正确
+({ p: (d) } = {}); // 正确
+[(parseInt.prop)] = [3]; // 正确
+```
+
+## 用途
+
+* 交换变量的值
+```javascript
+let x = 1;
+let y = 2;
+[x, y] = [y, x];
+```
+
+* 从函数返回多个值（之前想要函数返回多个值，只能将它们放在对象或数组中返回）
+```javascript
+// 返回一个数组
+function example() {
+  return [1, 2, 3];
+}
+let [a, b, c] = example();
+
+// 返回一个对象
+function example() {
+  return {
+    foo: 1,
+    bar: 2
+  };
+}
+let { foo, bar } = example();
+```
+
+* 函数参数的定义
+```javascript
+// 参数是一组有次序的值
+function f([x, y, z]) { ... }
+f([1, 2, 3]);
+
+// 参数是一组无次序的值
+function f({x, y, z}) { ... }
+f({z: 3, y: 2, x: 1});
+```
+
+* 提取JSON数据
+```javascript
+let jsonData = {
+  id: 42,
+  status: "OK",
+  data: [867, 5309]
+};
+
+let { id, status, data: number } = jsonData;
+
+console.log(id, status, number);
+// 42, "OK", [867, 5309]
+```
+
+* 函数参数的默认值
+```javascript
+jQuery.ajax = function (url, {
+  async = true,
+  beforeSend = function () {},
+  cache = true,
+  complete = function () {},
+  crossDomain = false,
+  global = true,
+  // ... more config
+} = {}) {
+  // ... do stuff
+};
+```
+
+* 遍历Map结构
+```javascript
+const map = new Map();
+map.set('first', 'hello');
+map.set('second', 'world');
+
+for (let [key, value] of map) {
+  console.log(key + " is " + value);
+}
+// first is hello
+// second is world
+
+// 获取键名
+for (let [key] of map) {
+  // ...
+}
+
+// 获取键值
+for (let [,value] of map) {
+  // ...
+}
+```
+
+* 输入模块的指定方法
+```javascript
+const { SourceMapConsumer, SourceNode } = require("source-map");
+```
 
