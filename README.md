@@ -1,8 +1,14 @@
-目录：
-[1.let const](#1-let-const)
+目录：</br>
 
-## 1. let const
-#### let命令基本用法
+[1. let const](#1-let-const)
+[* let命令基本用法](#let命令基本用法)
+[* 块级作用域](#块级作用域)
+[* const命令](#const命令)
+[]()
+[]()
+[]()
+# 1. let const
+## let命令基本用法
 
 * let声明的变量只在let命令所在的代码块内有效，且不存在变量提升
 
@@ -58,9 +64,9 @@ function func(arg) {
 }.
 ```
 
-#### 块级作用域
-##### 为什么需要块级作用域
-1. 内层变量可能会覆盖外层变量
+## 块级作用域
+1.为什么需要块级作用域
+* 内层变量可能会覆盖外层变量
 ```javascript
 var tmp = new Date();
 
@@ -75,9 +81,9 @@ f(); // undefined
 //内层变量tmp覆盖全局变量
 
 ```
-2.用来记数的循环变量泄露为全局变量
+* 用来记数的循环变量泄露为全局变量
 
-##### es6块级作用域
+2.es6块级作用域
 * let新增块级作用域，允许块级作用域做任意嵌套，且外层无法读取内层作用域的变量
 ```javascript
 function f1() {
@@ -123,7 +129,8 @@ try {
 //这两种情况都能运行，不会报错
 ```
 
-* ES6明确规定可在块级作用域中声明函数（函数声明类似于let）。但是如果按此规则，将无法兼容旧代码，故ES6在[附录](http://www.ecma-international.org/ecma-262/6.0/index.html#sec-block-level-function-declarations-web-legacy-compatibility-semantics)中规定，浏览器的实现允许不遵守该规定,可以有自己的[行为](https://stackoverflow.com/questions/31419897/what-are-the-precise-semantics-of-block-level-functions-in-es6)。
+* ES6明确规定可在块级作用域中声明函数（函数声明类似于let）。但是如果按此规则，将无法兼容旧代码，故ES6在[附录](http://www.ecma-international.org/ecma-262/6.0/index.html#sec-block-level-function-declarations-web-legacy-compatibility-semantics)中规定，浏览器的实现允许不遵守该规定,可以有自己的[行为](https://stackoverflow.com/questions/31419897/what-are-the-precise-semantics-of-block-level-functions-in-es6),即 允许在块级作用域内声明函数；函数声明类似`var`,即会提升到全局作用域或函数作用域的头部，同时会提升到其所在块级作用域的头部
+
 ```javascript
 function f() { console.log('I am outside!'); }
 
@@ -136,10 +143,73 @@ function f() { console.log('I am outside!'); }
 }());
 
 //在ES5环境中，输出 “I am outside!”, 函数f提升到函数头部
-//在ES6环境中，报错
+//在ES6环境中，报错。代码等同于：
+function f() { console.log('I am outside!'); }
+(function () {
+  var f = undefined;
+  if (false) {
+    function f() { console.log('I am inside!'); }
+  }
+  f();
+}());
+// Uncaught TypeError: f is not a function
+
+```
+注：声明函数的规则是必须在{}内部声明；考虑到环境导致的行为差异较大，尽量避免在块级作用域中声明函数。如必须在块级作用域中声明函数，请使用函数表达式，而不是函数声明语句
+```javascript
+// 函数声明语句
+{
+  let a = 'secret';
+  function f() {
+    return a;
+  }
+}
+
+// 函数表达式
+{
+  let a = 'secret';
+  let f = function () {
+    return a;
+  };
+}
+```
+
+## const
+* const声明一个只读的常量，即声明后不可修改，且声明后需立即初始化
+* const同let一样，只在声明的作用域有效，变量不可提升，存在暂时性死区，且不可重复声明
+
+```javascript
+const PI = 3.1415;
+PI // 3.1415
+
+PI = 3;
+// TypeError: Assignment to constant variable.
+
+const foo;
+// SyntaxError: Missing initializer in const declaration
+
+var message = "Hello!";
+let age = 25;
+
+// 以下两行都会报错
+const message = "Goodbye!";
+const age = 30;
 
 ```
 
+const所指的不可修改，不是指值的不可修改，而是指该变量指向的内存地址不可修改。对于简单型数据（数值、布尔、字符串），值就保存在变量所指向的内存地址，等同于常量。而对于复合型数据（如对象、数组）来说，const只保证其指针不变，其值可以随意变化
+
+```javascript
+const foo = {};
+
+// 为 foo 添加一个属性，可以成功
+foo.prop = 123;
+foo.prop // 123
+
+// 将 foo 指向另一个对象，就会报错
+foo = {}; // TypeError: "foo" is read-only
+```
+若真想将对象完全冻结，可使用[Object.freeze(obj)](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze)方法，冻结后不可以修改该对象的属性与值。
 
 
 
