@@ -1,11 +1,11 @@
 目录：</br>
 
-[1. let const](#1-let-const)
-[* let命令基本用法](#let命令基本用法)
-[* 块级作用域](#块级作用域)
-[* const命令](#const命令)
-[]()
-[]()
+[1. let const](#1-let-const)</br>
+[* let命令基本用法](#let命令基本用法)</br>
+[* 块级作用域](#块级作用域)</br>
+[* const命令](#const命令)</br>
+[* 顶层对象](#顶层对象)
+[* 变量的解构赋值](#变量的解构赋值)
 []()
 # 1. let const
 ## let命令基本用法
@@ -81,7 +81,7 @@ f(); // undefined
 //内层变量tmp覆盖全局变量
 
 ```
-* 用来记数的循环变量泄露为全局变量
+* 用来记数的循环变量泄露为全局变量，如for循环。
 
 2.es6块级作用域
 * let新增块级作用域，允许块级作用域做任意嵌套，且外层无法读取内层作用域的变量
@@ -209,10 +209,33 @@ foo.prop // 123
 // 将 foo 指向另一个对象，就会报错
 foo = {}; // TypeError: "foo" is read-only
 ```
-若真想将对象完全冻结，可使用[Object.freeze(obj)](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze)方法，冻结后不可以修改该对象的属性与值。
+若真想将对象完全冻结，可使用Object.freeze(obj)方法，冻结后不可以修改该对象的属性与值。（冻结分为浅冻结与深冻结，具体[点击此处](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze)）
 
+至此可知，ES6声明变量的方法共有6种，`var`, `function`, `let`,`const`, `import`, `class`。其中`var`, `function`是ES5仅有的两种方法。
 
+## 顶层对象
+顶层对象，在浏览器环境中指的是`window`, 在Node环境中指的是`global`，在浏览器和web worker环境中指的是`self`。在ES5中顶层对象等同于全局变量，在ES6中规定，`var`、 `function`声明的全局变量依然有顶层对象的属性，而`let`、`const`声明的全局变量不具有顶层对象的属性。
 
+```javascript
+var a = 1;
+// 如果在 Node 的 REPL 环境，可以写成 global.a
+// 或者采用通用方法，写成 this.a
+window.a // 1
+
+let b = 1;
+window.b // undefined
+```
+由于顶层对象获取困难，现有垫片库[system.global](https://github.com/ljharb/System.global)可在所有环境中都可以拿到顶层对象global
+
+```javascript
+// CommonJS 的写法
+require('system.global/shim')();
+
+// ES6 模块的写法
+import shim from 'system.global/shim'; shim();
+```
+
+# 2.变量的解构赋值
 
 
 
