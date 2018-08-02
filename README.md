@@ -245,18 +245,172 @@ import shim from 'system.global/shim'; shim();
 ## 2.变量的解构赋值
 * [数组的解构赋值](#数组的解构赋值)</br>
 * [对象的解构赋值](#对象的解构赋值)</br>
+* [默认值](#默认值)</br>
 * [字符串的解构赋值](#字符串的解构赋值)</br>
 * [数值和布尔值的解构赋值](#数值和布尔值的解构赋值)</br>
 * [函数参数解构赋值](#函数参数解构赋值)</br>
 * [圆括号问题](#圆括号问题)</br>
 * [用途](#用途)</br>
 
+ES6允许按照一定的模式，从对象或是数组中提取值，为变量赋值，称为`解构`。
+之前为变量赋值，只能直接指定值，现在可以从数组中提取数值，按照对应位置为变量赋值。
+
+```javascript
+let a = 1;
+let b = 2;
+let c = 3;
+
+//ES6 允许写成下面这样。
+let [a, b, c] = [1, 2, 3];
+```
+
 ### 数组的解构赋值
+数组解构情况：
+* 等号两边模式相同，左边的变量就会赋予右边数组对应的值
+* 等号左边模式部分匹配等号右边的数组，也可解构成功，称为“不完全解构”
+注：解构不成功，变量会被赋值为`undefined`； 等号右边的值必须为可遍历结构，否则解构会报错；只要等号右边为Iterator接口就可以解构。
 
+```javascript
+//完全解构
+let [x, , y] = [1, 2, 3];
+x // 1
+y // 3
 
+let [head, ...tail] = [1, 2, 3, 4];
+head // 1
+tail // [2, 3, 4]
+
+let [x, y, ...z] = ['a'];
+x // "a"
+y // undefined
+z // []
+
+//不完全解构
+let [x, y] = [1, 2, 3];
+x // 1
+y // 2
+
+let [a, [b], d] = [1, [2, 3], 4];
+a // 1
+b // 2
+d // 4
+
+// 报错
+let [foo] = 1;
+let [foo] = false;
+let [foo] = NaN;
+let [foo] = undefined;
+let [foo] = null;
+let [foo] = {};
+
+```
 
 ### 对象的解构赋值
+* 对象解构与数组的不同：对象解构无次序，变量须与属性名一致，才能获取对应值；而数组解构是按次序排列的，变量的值取决于它的位置。
+* 若无与变量名对应的同名属性会取不到值，就等于`undefined`。
 
+```javascript
+let { bar, foo } = { foo: "aaa", bar: "bbb" };
+foo // "aaa"
+bar // "bbb"
+
+let { baz } = { foo: "aaa", bar: "bbb" };
+baz // undefined
+```
+* 对象的解构赋值的内部机制是：先找到同名属性，再赋给对应变量。真正赋值的是后者，而不是前者。
+
+```javascript
+上面代码是下方代码的简写:
+let { foo: foo, bar: bar } = { foo: "aaa", bar: "bbb" };
+
+let { foo: baz } = { foo: "aaa", bar: "bbb" };
+baz // "aaa"
+foo // error: foo is not defined
+//在上面代码中，foo是匹配的模式，baz才是变量，真正被赋值的是baz，而不是foo
+
+```
+* 与数组一样，解构也用于嵌套结构的对象。
+```javascript
+const node = {
+  loc: {
+    start: {
+      line: 1,
+      column: 5
+    }
+  }
+};
+
+let { loc, loc: { start }, loc: { start: { line }} } = node;
+line // 1
+loc  // Object {start: Object}
+start // Object {line: 1, column: 5}
+//上面的代码有3次解构赋值，分别对`loc`, `start`, `line`解构赋值。
+//其中对`line`解构赋值时，只有`line`是变量，`loc`, `start`都是模式。
+```
+
+* 如果解构模式是嵌套对象，若子对象的父属性不存在，将会报错
+```javascript
+// 报错  子对外bar解构时会报错，因为它的父属性foo值为undefined
+let {foo: {bar}} = {baz: 'baz'};
+```
+
+* 对象的解构也可以指定默认值。且默认值生效的条件与数组相同，即对象的属性严格等于`undefined`。
+* 解构失败，变量的值为`undefined`。
+* 将一个已声明的变量解构，要非常小心。不要将大括号写在行首，避免JavaScript将其解释为代码块
+```javascript
+// 错误的写法
+let x;
+{x} = {x: 1};
+// SyntaxError: syntax error
+//因为JavaScript 引擎会将{x}理解成一个代码块，从而发生语法错误。
+//不要将大括号写在行首，避免JavaScript将其解释为代码块,可解决此问题
+
+// 正确的写法
+let x;
+({x} = {x: 1});
+```
+
+* 对象的解构赋值，可以很方便的将现有对象的方法赋给变量
+* 数组是特殊的对象，因此可以对数组进行对象属性的解构
+
+```javascript
+let { log, sin, cos } = Math;
+
+let arr = [1, 2, 3];
+let {0 : first, [arr.length - 1] : last} = arr;
+first // 1
+last // 3
+```
+
+
+
+### 默认值
+解构赋值允许指定默认值。
+ES6内部使用严格相等运算符（===），只有当数组或对象内部数值等于`undefined`，才会使用默认值。但`null`不严格等于`undefined`，故不会使用默认值。
+当一个变量的默认值是一个表达式时，若该变量有值，那表达式就不会执行，称为惰性求值。
+
+```javascript
+let [x = 1] = [undefined];
+x // 1
+
+let [x = 1] = [null];
+x // null
+
+function f() {
+  console.log('aaa');
+}
+let [x = f()] = [1];
+//由于x已经有值1，故f()不会执行。
+
+//等价于下方代码：
+let x;
+if ([1][0] === undefined) {
+  x = f();
+} else {
+  x = [1][0];
+}
+
+```
 
 
 ### 字符串的解构赋值
