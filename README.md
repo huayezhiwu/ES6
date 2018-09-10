@@ -605,7 +605,7 @@ const { SourceMapConsumer, SourceNode } = require("source-map");
 ## 3.字符串的扩展
 
 * [字符串的遍历器接口](#字符串的遍历器接口)</br>
-* [includes(), startWith(), endWith()](#includes(), startWith(), endWith())</br>
+* [includes() startWith() endWith()](#includes-startwith-endwith)</br>
 
 ### 字符串的遍历器接口
 可使用`for...of`来遍历，它的最大优点是可识别大于`0xFFFF`的码点。
