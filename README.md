@@ -2,7 +2,7 @@
 
 [1. let const](#1-let-const)</br>
 [2.变量的解构赋值](#2变量的解构赋值)</br>
-[]()</br>
+[3.字符串的扩展](#3.字符串的扩展)</br>
 []()</br>
 []()</br>
 []()</br>
@@ -599,4 +599,63 @@ for (let [,value] of map) {
 ```javascript
 const { SourceMapConsumer, SourceNode } = require("source-map");
 ```
+
+
+
+## 3.字符串的扩展
+* [字符串的遍历器接口](#字符串的遍历器接口)</br>
+* [includes(), startWith(), endWith()](#includes(), startWith(), endWith())</br>
+
+### 字符串的遍历器接口
+可使用`for...of`来遍历，它的最大优点是可识别大于`0xFFFF`的码点。
+```javascript
+for(let i of "foo"){
+    console.log(i); // f; o; o;
+}
+
+let text = String.fromCodePoint(0x20BB7);
+for(var i=0; i<text.length; i++){
+    console.log(text[i]);
+}
+//" "
+//" "
+
+
+for(let i of text){
+    console.log(i);
+}
+//"𠮷"
+```
+
+### includes(), startWith(), endWith()
+传统上，js只支持`indexOf`方法来判断字符串是否包含在另一个字符串之中，而es6又提供了3种方法，即
+includes()：返回布尔值，表示是否找到了参数字符串<br />
+startWith():返回布尔值,表示是否以参数字符串开头
+endWith()：返回布尔值，表示是否以参数字符串结尾
+```javascript
+let s = 'Hello world!'
+
+s.includes("o"); //true
+s.startWith("Hello") //true
+s.endWith("!") //true
+```
+
+此三个方法的第二个参数表示开始搜索的位置,而endWith与另外两个方法不同，它针对前n个字符，而另两个方法表示从第n个位置直到字符串结束
+
+```javascript
+s.startsWith('world', 6) // true
+s.includes('Hello', 6) // false
+s.endsWith('Hello', 5) // true
+```
+
+
+
+
+
+
+
+
+
+
+
 
