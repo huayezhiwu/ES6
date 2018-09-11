@@ -606,6 +606,11 @@ const { SourceMapConsumer, SourceNode } = require("source-map");
 
 * [字符串的遍历器接口](#字符串的遍历器接口)</br>
 * [includes() startWith() endWith()](#includes-startwith-endwith)</br>
+* [repeat()](#repeat)</br>
+* [padStart() padEnd()](#padStart-padEnd())</br>
+* [模板字符串](#模板字符串)</br>
+
+
 
 ### 字符串的遍历器接口
 可使用`for...of`来遍历，它的最大优点是可识别大于`0xFFFF`的码点。
@@ -648,6 +653,59 @@ s.startsWith('world', 6) // true
 s.includes('Hello', 6) // false
 s.endsWith('Hello', 5) // true
 ```
+
+### repeat()
+
+repeat返回一个新字符串，表示将原字符串重复n次。
+```javascript
+'x'.repeat(3) // "xxx"
+'hello'.repeat(2) // "hellohello"
+'na'.repeat(0) // ""
+
+'na'.repeat(-0.9) // ""
+
+```
+注：参数如果是小数，会被取整；如果是负数或是Infinity，会报错；但是如果是0到-1之间的小数，则等同于0，这是因为会先进行取整运算；参数NaN等同于0.
+
+### padStart()，padEnd()
+ES2017引入了字符串补全长度的功能。如果某个字符串不够指定长度，会在头部或尾部补全。 padStart用于头部补全，padEnd用于尾部补全
+```javascript
+'x'.padStart(5, 'ab') // 'ababx'
+'x'.padStart(4, 'ab') // 'abax'
+
+'x'.padEnd(5, 'ab') // 'xabab'
+'x'.padEnd(4, 'ab') // 'xaba'
+```
+padStart和padEnd一共接受两个参数，第一个参数用来指定字符串的最小长度，第二个参数是用来补全的字符串
+
+### 模板字符串
+模板字符串（template string）是增强版的字符串，用反引号（\`）标识。它可以当作普通字符串使用，也可以用来定义多行字符串，或者在字符串中嵌入变量。模板字符串中嵌入变量，需要将变量名写在${}之中。
+
+
+```javascript
+$('#result').append(`
+  There are <b>${basket.count}</b> items
+   in your basket, <em>${basket.onSale}</em>
+  are on sale!
+`);
+
+// 多行字符串
+`In JavaScript this is
+ not legal.`
+```
+
+模板字符串之中还能调用函数。
+
+```javascript
+function fn() {
+  return "Hello World";
+}
+
+`foo ${fn()} bar`
+// foo Hello World bar
+
+```
+
 
 
 
